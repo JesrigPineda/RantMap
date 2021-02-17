@@ -1,21 +1,19 @@
 import React from "react";
+import Map from "../components/Map";
+import RestaurantList from "../components/RestaurantList";
 
 export default function Home() {
   return (
-    <div class="p-5">
-      <main class="px-3">
-        <h1>Cover your page.</h1>
-        <p class="lead">
-          Cover is a one-page template for building simple and beautiful home
-          pages. Download, edit the text, and add your own fullscreen background
-          photo to make it your own.
-        </p>
-        <p class="lead">
-          <a href="#" class="btn btn-lg btn btn-outline-primary">
-            Learn more
-          </a>
-        </p>
-      </main>
+    <div className="container-fluid">
+      <div className="row">
+        <div className="col-md-9">
+          <Map />
+        </div>
+        <div className="col-md-3">
+          <h3>Restaurants near you</h3>
+          <RestaurantList />
+        </div>
+      </div>
     </div>
   );
 }

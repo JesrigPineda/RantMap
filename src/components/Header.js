@@ -30,11 +30,6 @@ const Header = ({ color, brand }) => {
                 Home
               </a>
             </li>
-            <li className="nav-item">
-              <a className="nav-link" href="map">
-                Map
-              </a>
-            </li>
           </ul>
         </div>
       </div>
