@@ -1,100 +1,127 @@
-import React from "react";
+import { useEffect, useState, useRef } from "react";
+import StarRatings from "react-star-ratings/build/star-ratings";
+import ReviewForm from "../components/ReviewForm";
 
-export default function Reviews() {
+export default function Restaurant(props) {
+  const [restaurant, setRestaurant] = useState({
+    reviews: [],
+    photos: [],
+  });
+
+  const [review, setReview] = useState({});
+
+  const mapRef = useRef();
+  useEffect(() => {
+    const map = new window.google.maps.Map(mapRef.current, {
+      center: { lat: 0, lng: 0 },
+      zoom: 15,
+    });
+    const service = new window.google.maps.places.PlacesService(map);
+    service.getDetails(
+      {
+        placeId: props.match.params.id,
+      },
+      (place, status) => {
+        if (status === "OK") {
+          setRestaurant(place);
+        }
+        console.log(place);
+      }
+    );
+  }, []);
+
+  const addReview = (data) => {
+    const newReview = { ...data, review };
+    setRestaurant({
+      ...restaurant,
+      reviews: [newReview, ...restaurant.reviews],
+    });
+    setReview({});
+  };
+
   return (
-    <div className="container p-5">
-      <div>
-        <img src="" className="img-fluid" alt="" />
-      </div>
-      <div className="row">
-        <div className="col-lg-4">
-          <svg
-            className="bd-placeholder-img rounded-circle"
-            width="140"
-            height="140"
-            xmlns="http://www.w3.org/2000/svg"
-            role="img"
-            aria-label="Placeholder: 140x140"
-            preserveAspectRatio="xMidYMid slice"
-            focusable="false"
-          >
-            <title>Placeholder</title>
-            <rect width="100%" height="100%" fill="#777"></rect>
-            <text x="50%" y="50%" fill="#777" dy=".3em">
-              140x140
-            </text>
-          </svg>
+    <main className="container">
+      <div ref={mapRef} />
 
-          <h2>Heading</h2>
-          <p>
-            Some representative placeholder content for the three columns of
-            text below the carousel. This is the first column.
-          </p>
-          <p>
-            <a className="btn btn-secondary" href="#">
-              View details »
-            </a>
-          </p>
-        </div>
-        <div className="col-lg-4">
-          <svg
-            className="bd-placeholder-img rounded-circle"
-            width="140"
-            height="140"
-            xmlns="http://www.w3.org/2000/svg"
-            role="img"
-            aria-label="Placeholder: 140x140"
-            preserveAspectRatio="xMidYMid slice"
-            focusable="false"
-          >
-            <title>Placeholder</title>
-            <rect width="100%" height="100%" fill="#777"></rect>
-            <text x="50%" y="50%" fill="#777" dy=".3em">
-              140x140
-            </text>
-          </svg>
-
-          <h2>Heading</h2>
-          <p>
-            Another exciting bit of representative placeholder content. This
-            time, we've moved on to the second column.
-          </p>
-          <p>
-            <a className="btn btn-secondary" href="#">
-              View details »
-            </a>
-          </p>
-        </div>
-        <div className="col-lg-4">
-          <svg
-            className="bd-placeholder-img rounded-circle"
-            width="140"
-            height="140"
-            xmlns="http://www.w3.org/2000/svg"
-            role="img"
-            aria-label="Placeholder: 140x140"
-            preserveAspectRatio="xMidYMid slice"
-            focusable="false"
-          >
-            <title>Placeholder</title>
-            <rect width="100%" height="100%" fill="#777"></rect>
-            <text x="50%" y="50%" fill="#777" dy=".3em">
-              140x140
-            </text>
-          </svg>
-
-          <h2>Heading</h2>
-          <p>
-            And lastly this, the third column of representative placeholder
-            content.
-          </p>
-          <p>
-            <a className="btn btn-secondary" href="#">
-              View details »
-            </a>
-          </p>
+      <div
+        className="bg-image"
+        style={{
+          backgroundImage: `url(${
+            restaurant.photos.length > 0
+              ? restaurant.photos[0].getUrl()
+              : undefined
+          })`,
+        }}
+      >
+        <div className="cover">
+          <div className="text-center p-4">
+            <StarRatings
+              rating={restaurant.rating}
+              starRatedColor="orange"
+              numberOfStars={5}
+              name="rating"
+              starDimension="25px"
+              starSpacing="5px"
+            />
+          </div>
+          <div className="p-5 text-center text-white">
+            <h3 className="fw-light">{restaurant.name}</h3>
+            <p className="fw-lighter">{restaurant.vicinity}</p>
+            <button type="button" className="btn btn-primary">
+              {restaurant.opening_hours?.open_now ? "Open" : "Closed"}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+
+      <div className="container">
+        <div className="text-center p-5">
+          <h1 className="fw-normal">Reviews</h1>
+          <button
+            className="btn btn-primary"
+            onClick={() => setReview({ time: new Date().getTime() })}
+          >
+            Write Review
+          </button>
+        </div>
+
+        {Object.keys(review).length > 0 && <ReviewForm submit={addReview} />}
+
+        {restaurant.reviews.map((review, index) => (
+          <div key={index} class="card mb-3">
+            <div class="row">
+              <div class="col-md-4 d-flex align-items-center">
+                <img
+                  src={review.profile_photo_url}
+                  className="mx-auto d-block profile mt-3 mt-md-0"
+                  alt="..."
+                />
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <div className="d-flex justify-content-between">
+                    <h5 class="card-title">{review.author_name}</h5>
+                    <p class="card-text text-end">
+                      <small class="text-muted">
+                        {review.relative_time_description}
+                      </small>
+                    </p>
+                  </div>
+                  <StarRatings
+                    rating={review.rating}
+                    starRatedColor="orange"
+                    numberOfStars={5}
+                    name="rating"
+                    starDimension="18px"
+                    starSpacing="5px"
+                  />
+                  <p class="card-text py-2">{review.text}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </main>
   );
 }

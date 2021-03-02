@@ -22,16 +22,6 @@ const Header = ({ color, brand }) => {
         >
           <span className="navbar-toggler-icon"></span>
         </button>
-
-        <div className="collapse navbar-collapse" id="navbarsExampleDefault">
-          <ul className="navbar-nav ms-auto mb-2 mb-md-0">
-            <li className="nav-item active">
-              <a className="nav-link" aria-current="page" href="/">
-                Home
-              </a>
-            </li>
-          </ul>
-        </div>
       </div>
     </nav>
   );
