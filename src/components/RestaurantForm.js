@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import StarRatings from 'react-star-ratings';
 
-function ReviewForm({ submit, close }) {
-  const [data, setData] = useState({ rating: 0, author_name: '', text: '' });
+function RestaurantForm({ submit, close }) {
+  const [data, setData] = useState({ rating: 0, name: '', text: '' });
   const [error, setError] = useState({});
 
   const profile_photo_url =
@@ -27,7 +27,7 @@ function ReviewForm({ submit, close }) {
 
   const validate = () => {
     const errors = {};
-    if (!data.author_name) errors.author_name = 'You must provide a name';
+    if (!data.name) errors.name = 'You must provide a name';
     if (!data.text) errors.text = 'You must provide a comment';
 
     return errors;
@@ -40,7 +40,7 @@ function ReviewForm({ submit, close }) {
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <div className="d-flex justify-content-between">
-            <h2>Add new comment</h2>
+            <h2>Add new restaurant</h2>
             <button
               type="button"
               className="btn-close"
@@ -51,15 +51,13 @@ function ReviewForm({ submit, close }) {
           <label htmlFor="authorName">Name:</label>
           <input
             id="authorName"
-            name="author_name"
-            className={`form-control ${error.author_name ? 'is-invalid' : ''}`}
+            name="name"
+            className={`form-control ${error.name ? 'is-invalid' : ''}`}
             type="text"
-            value={data.author_name}
+            value={data.name}
             onChange={handleChange}
           />
-          {!!error.author_name && (
-            <div className="invalid-feedback">{error.author_name}</div>
-          )}
+          {!!error.name && <div className="invalid-feedback">{error.name}</div>}
         </div>
         <div className="form-group">
           <label htmlFor="comments">Comments:</label>
@@ -89,4 +87,4 @@ function ReviewForm({ submit, close }) {
   );
 }
 
-export default ReviewForm;
+export default RestaurantForm;

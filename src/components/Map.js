@@ -1,13 +1,15 @@
-import { useEffect, useRef, useContext } from "react";
-import React from "react";
-import Context from "../context";
+import { useEffect, useRef, useContext, useState } from 'react';
+import React from 'react';
+import Context from '../context';
+import googleMapIcon from 'google-maps-icons';
+import RestaurantForm from './RestaurantForm';
 
 function Map() {
   const mapRef = useRef();
 
   const { dispatch, state } = useContext(Context);
-
-  console.log(state.restaurants);
+  const [restaurant, setRestaurant] = useState({});
+  const [mapElm, setMapElm] = useState(null);
 
   useEffect(() => {
     const map = new window.google.maps.Map(mapRef.current, {
@@ -15,11 +17,20 @@ function Map() {
       zoom: 15,
     });
 
-    window.google.maps.event.addListener(map, "rightclick", (event) => {
+    setMapElm(map);
+
+    window.google.maps.event.addListener(map, 'rightclick', (event) => {
       const lat = event.latLng.lat();
       const lng = event.latLng.lng();
       // populate yor box/field with lat, lng
-      console.log("Lat=" + lat + "; Lng=" + lng);
+      setRestaurant({
+        geometry: {
+          location: {
+            lat,
+            lng,
+          },
+        },
+      });
     });
 
     navigator.geolocation.getCurrentPosition(({ coords }) => {
@@ -29,63 +40,91 @@ function Map() {
       };
       map.setCenter(position);
 
-
       const service = new window.google.maps.places.PlacesService(map);
       service.nearbySearch(
         {
           location: position,
-          radius: "5000",
-          type: ["restaurant"],
+          radius: '5000',
+          type: ['restaurant'],
         },
         (results, status) => {
           // console.log(results, status);
-          if (status === "OK") {
-            dispatch({ type: "UPDATE_RESTAURANTS", payload: results });
-            for (var i = 0; i < results.length; i++) {
-              createMarker(results[i]);
-            }
+          if (status === 'OK') {
+            dispatch({ type: 'UPDATE_RESTAURANTS', payload: results });
           }
         }
       );
-
-      function createMarker(place) {
-        if (!place.geometry || !place.geometry.location) return;
-        var photos = place.photos;
-        if (!photos) return;
-        const marker = new window.google.maps.Marker({
-          map,
-          position: place.geometry.location,
-          title: place.name,
-          icon: place.icon,
-        });
-
-        const contentString = `<div id="content"> 
-        <p>${place.name}</p> 
-        <img src=${photos[0].getUrl({
-          maxWidth: 200,
-          maxHeight: 200,
-        })}/> </div>`;
-
-        const infowindow = new window.google.maps.InfoWindow({
-          content: contentString,
-        });
-
-        marker.addListener("click", () => {
-          infowindow.open(map, marker);
-        });
-      }
     });
   }, []);
 
+  useEffect(() => {
+    const restaurants =
+      state.filtered.length > 0 ? state.filtered : state.restaurants;
+
+    restaurants.map((r) => createMarker(r));
+  }, [state.restaurants]);
+
+  const createMarker = (place) => {
+    if (place.geometry) {
+      // icon options for Marker
+      const options = { scale: 1.5, color: 'ff9e67' };
+      const iconUrl = googleMapIcon('restaurant', options);
+
+      const position = {
+        lat: place.place_id
+          ? place.geometry.location.lat()
+          : place.geometry.location.lat,
+        lng: place.place_id
+          ? place.geometry.location.lng()
+          : place.geometry.location.lng,
+      };
+
+      const marker = new window.google.maps.Marker({
+        map: mapElm,
+        position,
+        animation: window.google.maps.Animation.DROP,
+        title: place.name,
+        icon: iconUrl,
+      });
+
+      const contentString = `<div id="content"> 
+    <p>${place.name}</p> 
+    ${
+      place.photos &&
+      `<img src=${place.photos[0].getUrl({
+        maxWidth: 200,
+        maxHeight: 200,
+      })}/>`
+    }
+     </div>`;
+
+      const infowindow = new window.google.maps.InfoWindow({
+        content: contentString,
+      });
+
+      marker.addListener('click', () => {
+        infowindow.open(mapElm, marker);
+      });
+    }
+  };
+
+  const addRestaurant = (data) => {
+    const newRestaurant = { ...data, ...restaurant };
+
+    dispatch({
+      type: 'UPDATE_RESTAURANTS',
+      payload: [newRestaurant, ...state.restaurants],
+    });
+
+    setRestaurant({});
+  };
+
   return (
     <>
-      <div className="modal-form">
-        <form action="">
-          <h2>Adding new restaurant</h2>
-          <button className="btn btn-success">Submit</button>
-        </form>
-      </div>
-      <div style={{ height: "calc(100vh - 57px - 56px)" }} ref={mapRef} />
+      {restaurant.geometry && (
+        <RestaurantForm submit={addRestaurant} close={setRestaurant} />
+      )}
+      <div style={{ height: 'calc(100vh - 57px - 56px)' }} ref={mapRef} />
     </>
   );
 }

@@ -2,7 +2,7 @@ import React from "react";
 import Map from "../components/Map";
 import RestaurantList from "../components/RestaurantList";
 
- function Home() {
+function Home() {
   return (
     <div className="container-fluid p-0">
       <div className="row g-0">

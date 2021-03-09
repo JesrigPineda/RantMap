@@ -1,16 +1,17 @@
-import React from "react";
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Header = ({ color, brand }) => {
   return (
     <nav className={`navbar navbar-expand-md navbar-blue bg-${color} shadow`}>
       <div className="container-fluid">
-        <a className="navbar-brand" href="/">
-          {brand ? brand : "Navbar"}{" "}
+        <Link className="navbar-brand" to="/">
+          {brand ? brand : 'Navbar'}{' '}
           <img
             src="https://icongr.am/material/map-search.svg?size=25&color=006eff"
             alt=""
           />
-        </a>
+        </Link>
         <button
           className="navbar-toggler navbar-light bg-light"
           type="button"

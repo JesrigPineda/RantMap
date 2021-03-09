@@ -1,6 +1,6 @@
-import { useEffect, useState, useRef } from "react";
-import StarRatings from "react-star-ratings/build/star-ratings";
-import ReviewForm from "../components/ReviewForm";
+import { useEffect, useState, useRef } from 'react';
+import StarRatings from 'react-star-ratings/build/star-ratings';
+import ReviewForm from '../components/ReviewForm';
 
 export default function Restaurant(props) {
   const [restaurant, setRestaurant] = useState({
@@ -22,7 +22,7 @@ export default function Restaurant(props) {
         placeId: props.match.params.id,
       },
       (place, status) => {
-        if (status === "OK") {
+        if (status === 'OK') {
           setRestaurant(place);
         }
         console.log(place);
@@ -44,12 +44,11 @@ export default function Restaurant(props) {
       <div ref={mapRef} />
 
       <div
+        // TypeError: Cannot read property 'length' of undefined
         className="bg-image"
         style={{
           backgroundImage: `url(${
-            restaurant.photos.length > 0
-              ? restaurant.photos[0].getUrl()
-              : undefined
+            restaurant.photos?.length > 0 ? restaurant.photos[0].getUrl() : ''
           })`,
         }}
       >
@@ -65,10 +64,18 @@ export default function Restaurant(props) {
             />
           </div>
           <div className="p-5 text-center text-white">
-            <h3 className="fw-light">{restaurant.name}</h3>
+            <h1 className="fw-light">{restaurant.name}</h1>
             <p className="fw-lighter">{restaurant.vicinity}</p>
-            <button type="button" className="btn btn-primary">
-              {restaurant.opening_hours?.open_now ? "Open" : "Closed"}
+            <p className="fw-lighter">{restaurant.formatted_phone_number}</p>
+            <button
+              type="button"
+              className={
+                restaurant.opening_hours?.open_now
+                  ? 'btn btn-success'
+                  : 'btn btn-danger'
+              }
+            >
+              {restaurant.opening_hours?.open_now ? 'Open' : 'Closed'}
             </button>
           </div>
         </div>
@@ -76,7 +83,33 @@ export default function Restaurant(props) {
 
       <div className="container">
         <div className="text-center p-5">
+          <h1 className="fw-normal">Gallery</h1>
+          <hr className="mt-2 mb-5"></hr>
+          <div className="photos">
+            {restaurant.photos?.map((photo, index) => (
+              <div key={index} className="align-items-center">
+                <img
+                  src={photo.getUrl()}
+                  className="img-fluid img-thumbnail"
+                  alt="..."
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {!restaurant.photos && (
+          <div className="alert alert-info">No photos found</div>
+        )}
+
+        <img
+          src={`https://maps.googleapis.com/maps/api/streetview?size=400x400&location=${restaurant.geometry?.location.lat()},${restaurant.geometry?.location.lng()}&fov=80&heading=70&pitch=0&key=AIzaSyCaNdfSoOGP6N65uKmpe7B4fV73Hk4qm-M`}
+          alt=""
+        />
+
+        <div className="text-center p-5">
           <h1 className="fw-normal">Reviews</h1>
+          <hr className="mt-2 mb-5"></hr>
           <button
             className="btn btn-primary"
             onClick={() => setReview({ time: new Date().getTime() })}
@@ -85,24 +118,26 @@ export default function Restaurant(props) {
           </button>
         </div>
 
-        {Object.keys(review).length > 0 && <ReviewForm submit={addReview} />}
+        {Object.keys(review).length > 0 && (
+          <ReviewForm submit={addReview} close={setReview} />
+        )}
 
         {restaurant.reviews.map((review, index) => (
-          <div key={index} class="card mb-3">
-            <div class="row">
-              <div class="col-md-4 d-flex align-items-center">
+          <div key={index} className="card mb-3">
+            <div className="row">
+              <div className="col-md-4 d-flex align-items-center">
                 <img
                   src={review.profile_photo_url}
                   className="mx-auto d-block profile mt-3 mt-md-0"
                   alt="..."
                 />
               </div>
-              <div class="col-md-8">
-                <div class="card-body">
+              <div className="col-md-8">
+                <div className="card-body">
                   <div className="d-flex justify-content-between">
-                    <h5 class="card-title">{review.author_name}</h5>
-                    <p class="card-text text-end">
-                      <small class="text-muted">
+                    <h5 className="card-title">{review.author_name}</h5>
+                    <p className="card-text text-end">
+                      <small className="text-muted">
                         {review.relative_time_description}
                       </small>
                     </p>
@@ -115,7 +150,7 @@ export default function Restaurant(props) {
                     starDimension="18px"
                     starSpacing="5px"
                   />
-                  <p class="card-text py-2">{review.text}</p>
+                  <p className="card-text py-2">{review.text}</p>
                 </div>
               </div>
             </div>
