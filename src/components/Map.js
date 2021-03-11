@@ -10,6 +10,7 @@ function Map() {
   const { dispatch, state } = useContext(Context);
   const [restaurant, setRestaurant] = useState({});
   const [mapElm, setMapElm] = useState(null);
+  const [markers, setMarkers] = useState([]);
 
   useEffect(() => {
     const map = new window.google.maps.Map(mapRef.current, {
@@ -18,11 +19,17 @@ function Map() {
     });
 
     setMapElm(map);
+    const mapCanvas = document.getElementById('map_canvas');
+
+    mapCanvas.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+    });
 
     window.google.maps.event.addListener(map, 'rightclick', (event) => {
       const lat = event.latLng.lat();
       const lng = event.latLng.lng();
-      // populate yor box/field with lat, lng
+      // .on (eventos [, selector] [, datos], controlador)
+
       setRestaurant({
         geometry: {
           location: {
@@ -40,6 +47,8 @@ function Map() {
       };
       map.setCenter(position);
 
+      new window.google.maps.Marker({ position, map });
+
       const service = new window.google.maps.places.PlacesService(map);
       service.nearbySearch(
         {
@@ -48,21 +57,40 @@ function Map() {
           type: ['restaurant'],
         },
         (results, status) => {
-          // console.log(results, status);
           if (status === 'OK') {
             dispatch({ type: 'UPDATE_RESTAURANTS', payload: results });
           }
         }
       );
     });
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
-    const restaurants =
-      state.filtered.length > 0 ? state.filtered : state.restaurants;
+    let markersArr = [];
 
-    restaurants.map((r) => createMarker(r));
-  }, [state.restaurants]);
+    if (state.filtering && state.filtered.length === 0) {
+      removeMarkers();
+    } else {
+      const restaurants =
+        state.filtered.length > 0 ? state.filtered : state.restaurants;
+
+      removeMarkers();
+
+      restaurants.map((r) => {
+        const marker = createMarker(r);
+        return (markersArr = [...markersArr, marker]);
+      });
+
+      setMarkers(markersArr);
+    }
+  }, [state.restaurants, state.filtered, state.filtering]);
+
+  const removeMarkers = () => {
+    setMarkers([]);
+    markers.map((m) => {
+      return m.setMap(null);
+    });
+  };
 
   const createMarker = (place) => {
     if (place.geometry) {
@@ -88,15 +116,9 @@ function Map() {
       });
 
       const contentString = `<div id="content"> 
-    <p>${place.name}</p> 
-    ${
-      place.photos &&
-      `<img src=${place.photos[0].getUrl({
-        maxWidth: 200,
-        maxHeight: 200,
-      })}/>`
-    }
-     </div>`;
+        <h3>${place.name}</h3> 
+        <p>${place.vicinity}</p>
+        </div>`;
 
       const infowindow = new window.google.maps.InfoWindow({
         content: contentString,
@@ -105,6 +127,8 @@ function Map() {
       marker.addListener('click', () => {
         infowindow.open(mapElm, marker);
       });
+
+      return marker;
     }
   };
 
@@ -121,10 +145,12 @@ function Map() {
 
   return (
     <>
-      {restaurant.geometry && (
-        <RestaurantForm submit={addRestaurant} close={setRestaurant} />
-      )}
-      <div style={{ height: 'calc(100vh - 57px - 56px)' }} ref={mapRef} />
+      <div id="map_canvas">
+        {restaurant.geometry && (
+          <RestaurantForm submit={addRestaurant} close={setRestaurant} />
+        )}
+        <div style={{ height: 'calc(100vh - 57px - 56px)' }} ref={mapRef} />
+      </div>
     </>
   );
 }

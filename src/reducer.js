@@ -1,4 +1,4 @@
-export default (state, { type, payload }) => {
+const reducer = (state, { type, payload }) => {
   switch (type) {
     case 'UPDATE_RESTAURANTS':
       return {
@@ -9,9 +9,18 @@ export default (state, { type, payload }) => {
       return {
         ...state,
         filtered: payload,
+        filtering: true,
+      };
+    case 'CLEAR_FILTERS':
+      return {
+        ...state,
+        filtered: [],
+        filtering: false,
       };
 
     default:
       return state;
   }
 };
+
+export default reducer;

@@ -2,11 +2,8 @@ import { useState } from 'react';
 import StarRatings from 'react-star-ratings';
 
 function RestaurantForm({ submit, close }) {
-  const [data, setData] = useState({ rating: 0, name: '', text: '' });
+  const [data, setData] = useState({ rating: 0, name: '', vicinity: '' });
   const [error, setError] = useState({});
-
-  const profile_photo_url =
-    'https://icongr.am/fontawesome/user-circle-o.svg?size=148&color=c2c2c2';
 
   const handleChange = (e) =>
     setData({ ...data, [e.target.name]: e.target.value });
@@ -21,19 +18,17 @@ function RestaurantForm({ submit, close }) {
     if (Object.keys(errors).length > 0) {
       setError(errors);
     } else {
-      submit({ ...data, profile_photo_url });
+      submit({ ...data });
     }
   };
 
   const validate = () => {
     const errors = {};
     if (!data.name) errors.name = 'You must provide a name';
-    if (!data.text) errors.text = 'You must provide a comment';
+    if (!data.vicinity) errors.vicinity = 'You must provide a addres';
 
     return errors;
   };
-
-  console.log({ error });
 
   return (
     <div className="modal-form">
@@ -48,9 +43,9 @@ function RestaurantForm({ submit, close }) {
               onClick={() => close({})}
             ></button>
           </div>
-          <label htmlFor="authorName">Name:</label>
+          <label htmlFor="restaurantName">Name:</label>
           <input
-            id="authorName"
+            id="restaurantName"
             name="name"
             className={`form-control ${error.name ? 'is-invalid' : ''}`}
             type="text"
@@ -60,13 +55,12 @@ function RestaurantForm({ submit, close }) {
           {!!error.name && <div className="invalid-feedback">{error.name}</div>}
         </div>
         <div className="form-group">
-          <label htmlFor="comments">Comments:</label>
-          <textarea
-            id="comments"
-            name="text"
+          <label htmlFor="address">Address:</label>
+          <input
+            id="address"
+            name="vicinity"
             className="form-control"
-            value={data.text}
-            required="required"
+            value={data.vicinity}
             onChange={handleChange}
           />
         </div>

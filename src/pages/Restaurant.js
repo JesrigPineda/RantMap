@@ -25,10 +25,9 @@ export default function Restaurant(props) {
         if (status === 'OK') {
           setRestaurant(place);
         }
-        console.log(place);
       }
     );
-  }, []);
+  }, [props.match.params.id]);
 
   const addReview = (data) => {
     const newReview = { ...data, review };
@@ -44,7 +43,6 @@ export default function Restaurant(props) {
       <div ref={mapRef} />
 
       <div
-        // TypeError: Cannot read property 'length' of undefined
         className="bg-image"
         style={{
           backgroundImage: `url(${
@@ -101,11 +99,13 @@ export default function Restaurant(props) {
         {!restaurant.photos && (
           <div className="alert alert-info">No photos found</div>
         )}
-
-        <img
-          src={`https://maps.googleapis.com/maps/api/streetview?size=400x400&location=${restaurant.geometry?.location.lat()},${restaurant.geometry?.location.lng()}&fov=80&heading=70&pitch=0&key=AIzaSyCaNdfSoOGP6N65uKmpe7B4fV73Hk4qm-M`}
-          alt=""
-        />
+        <div className="text-center">
+          <img
+            className="img-fluid img-thumbnail"
+            src={`https://maps.googleapis.com/maps/api/streetview?size=400x400&location=${restaurant.geometry?.location.lat()},${restaurant.geometry?.location.lng()}&fov=80&heading=70&pitch=0&key=AIzaSyCaNdfSoOGP6N65uKmpe7B4fV73Hk4qm-M`}
+            alt=""
+          />
+        </div>
 
         <div className="text-center p-5">
           <h1 className="fw-normal">Reviews</h1>

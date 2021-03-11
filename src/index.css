@@ -30,10 +30,7 @@ body {
   justify-content: center;
   align-items: center;
 }
-.modal-form.close {
-  opacity: 0;
-  z-index: -1;
-}
+
 .modal-form form {
   background-color: #fff;
   width: 100%;

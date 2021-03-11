@@ -33,8 +33,6 @@ function ReviewForm({ submit, close }) {
     return errors;
   };
 
-  console.log({ error });
-
   return (
     <div className="modal-form">
       <form onSubmit={handleSubmit}>
@@ -68,7 +66,6 @@ function ReviewForm({ submit, close }) {
             name="text"
             className="form-control"
             value={data.text}
-            required="required"
             onChange={handleChange}
           />
         </div>

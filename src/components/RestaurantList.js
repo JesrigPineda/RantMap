@@ -13,11 +13,15 @@ export default function RestaurantList() {
       (r) => Math.floor(r.rating) === rating
     );
 
-    console.log({ filtered });
     dispatch({
       type: 'FILTER_RESTAURANTS',
       payload: filtered,
     });
+  };
+
+  const clearFilters = () => {
+    setFilter(0);
+    dispatch({ type: 'CLEAR_FILTERS' });
   };
 
   const restaurants =
@@ -25,7 +29,10 @@ export default function RestaurantList() {
 
   return (
     <>
-      <div>
+      <div className="bg-primary p-3">
+        <p className="m-0">
+          <strong className="text-white">Filter by rating</strong>
+        </p>
         <StarRatings
           rating={filter}
           starRatedColor="orange"
@@ -35,25 +42,47 @@ export default function RestaurantList() {
           starDimension="20px"
           starSpacing="5px"
         />
+        {state.filtering && (
+          <button
+            onClick={clearFilters}
+            className="btn btn-small bg-white ms-3 p-2"
+          >
+            Clear
+          </button>
+        )}
       </div>
       <ul className="list-group">
-        {restaurants.map((r, index) => (
-          <li key={index} className="list-group-item">
-            <Link to={`/restaurant/${r.place_id}`}>
-              <strong>{r.name}</strong>
-            </Link>
-            <div>
-              <StarRatings
-                rating={r.rating}
-                starRatedColor="orange"
-                numberOfStars={5}
-                name="rating"
-                starDimension="20px"
-                starSpacing="5px"
-              />
-            </div>
+        {state.filtering && state.filtered.length === 0 ? (
+          <li className="list-group-item">
+            <div className="alert alert-warning">Nothing found</div>
           </li>
-        ))}
+        ) : (
+          restaurants.map((r, index) => (
+            <li key={index} className="list-group-item">
+              {r.place_id ? (
+                <Link to={`/restaurant/${r.place_id}`}>
+                  <strong>{r.name}</strong>
+                </Link>
+              ) : (
+                <strong>{r.name}</strong>
+              )}
+
+              <p className="my-1">
+                <small>{r.vicinity}</small>
+              </p>
+              <div>
+                <StarRatings
+                  rating={r.rating}
+                  starRatedColor="orange"
+                  numberOfStars={5}
+                  name="rating"
+                  starDimension="20px"
+                  starSpacing="5px"
+                />
+              </div>
+            </li>
+          ))
+        )}
       </ul>
     </>
   );
