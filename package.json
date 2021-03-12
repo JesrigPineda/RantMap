@@ -1,6 +1,6 @@
 {
   "name": "project-7",
-  "homepage": "./",
+  "homepage": "https://rantmap.netlify.app",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
